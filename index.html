@@ -271,19 +271,19 @@ footer small{display:block;margin-top:30px;font-size:13px;line-height:1.6;opacit
 
 .rv{opacity:0;translate:0 40px;transition:opacity .7s,translate .7s cubic-bezier(.2,.8,.2,1)}
 .rv.in{opacity:1;translate:0 0}
-@media(prefers-reduced-motion:no-preference){
-  .bob{animation:bob 6s ease-in-out infinite}
-  .bob2{animation:bob 7.5s ease-in-out -2s infinite}
-  @keyframes bob{50%{transform:translateY(-14px) rotate(2deg)}}
-  .hero .scroll-hint i{animation:drip 1.8s ease-in-out infinite}
-  @keyframes drip{0%{transform:scaleY(0)}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
-  footer .spin{animation:spin 30s linear infinite}
-}
-@media(prefers-reduced-motion:reduce){
-  .marq .tr,.fab svg,.panel .hint i{animation:none}
-  .rv{opacity:1;translate:none}
-  .hero{--p:0!important}
-}
+.bob{animation:bob 6s ease-in-out infinite}
+.bob2{animation:bob 7.5s ease-in-out -2s infinite}
+@keyframes bob{50%{transform:translateY(-14px) rotate(2deg)}}
+.hero .scroll-hint i{animation:drip 1.8s ease-in-out infinite}
+@keyframes drip{0%{transform:scaleY(0)}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+footer .spin{animation:spin 30s linear infinite}
+/* reduced motion (OS setting) – viewer can switch effects back on */
+html.still .marq .tr,html.still .fab svg,html.still .panel .hint i,html.still .bob,html.still .bob2,html.still .hero .scroll-hint i,html.still footer .spin{animation:none}
+html.still .rv{opacity:1;translate:none}
+.motion-tg{position:fixed;left:max(16px,env(safe-area-inset-left,0px));bottom:max(18px,env(safe-area-inset-bottom,0px));z-index:30;display:none;align-items:center;gap:8px;font:700 13px var(--body);background:var(--diep);color:var(--then);border:2px solid var(--then);border-radius:999px;padding:9px 14px;cursor:pointer}
+.motion-tg.show{display:inline-flex}
+.motion-tg i{width:10px;height:10px;border-radius:50%;background:var(--ink-3)}
+html:not(.still) .motion-tg i{background:var(--son)}
 </style>
 
 <svg class="stroke" viewBox="0 0 20 1000" preserveAspectRatio="none" aria-hidden="true"><path class="bg" d="M10 0 C 2 120, 18 240, 10 360 S 2 600, 10 720 S 18 900, 10 1000"/><path id="strokeP" d="M10 0 C 2 120, 18 240, 10 360 S 2 600, 10 720 S 18 900, 10 1000" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" vector-effect="non-scaling-stroke"/></svg>
@@ -475,6 +475,7 @@ footer small{display:block;margin-top:30px;font-size:13px;line-height:1.6;opacit
   </div>
 </footer>
 
+<button class="motion-tg" type="button" id="motionTg" aria-pressed="false"><i></i><span>Bật hiệu ứng chuyển động</span></button>
 <a class="fab" href="#dang-ky" aria-label="Giữ chỗ làm thử">
   <svg viewBox="0 0 100 100" aria-hidden="true"><defs><path id="ring" d="M50 50 m-38 0 a38 38 0 1 1 76 0 a38 38 0 1 1 -76 0"/></defs><text><textPath href="#ring">GIỮ CHỖ · LÀM THỬ · GIỮ CHỖ · LÀM THỬ ·</textPath></text></svg>
   <span class="sw"></span>
@@ -482,7 +483,19 @@ footer small{display:block;margin-top:30px;font-size:13px;line-height:1.6;opacit
 
 <script>
 (function(){
-  var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var osReduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches,pref=null;
+  try{pref=localStorage.getItem('mach-motion')}catch(e){}
+  var reduce=osReduce&&pref!=='on';
+  document.documentElement.classList.toggle('still',reduce);
+  var tg=document.getElementById('motionTg');
+  if(osReduce){tg.classList.add('show');
+    function lab(){tg.setAttribute('aria-pressed',String(!reduce));tg.querySelector('span').textContent=reduce?'Bật hiệu ứng chuyển động':'Tắt hiệu ứng chuyển động'}
+    lab();
+    tg.addEventListener('click',function(){reduce=!reduce;document.documentElement.classList.toggle('still',reduce);
+      try{localStorage.setItem('mach-motion',reduce?'off':'on')}catch(e){}
+      if(reduce)hero.style.setProperty('--p','0');lab();onScroll();
+      document.querySelectorAll('.craft').forEach(function(c){c.style.setProperty('--rx','0deg');c.style.setProperty('--ry','0deg')})});
+  }
   // countdown to 24/11/2026 09:00 (UTC+7)
   var target=Date.UTC(2026,10,24,2,0,0);
   function tick(){
@@ -566,7 +579,7 @@ footer small{display:block;margin-top:30px;font-size:13px;line-height:1.6;opacit
     {n:'Làm lọng',w:'Huế',m:'Xem dựng khung 32 nan tre và căng vải một chiếc lọng.',t:'Trình diễn',near:false,tr:false},
     {n:'Dệt lanh, vẽ sáp ong',w:'Người H’Mông, vùng cao phía Bắc',m:'Vẽ một đường xoắn ốc bằng bút sáp lên vải lanh.',t:'30 phút',near:false,tr:true}
   ];
-  var grid=document.getElementById('crafts'),fine=window.matchMedia('(pointer:fine)').matches&&!reduce;
+  var grid=document.getElementById('crafts'),fine=window.matchMedia('(pointer:fine)').matches;
   function render(f){
     grid.innerHTML='';
     crafts.filter(function(c){return f==='all'||(f==='near'&&c.near)||(f==='try'&&c.tr)}).forEach(function(c,i){
@@ -579,7 +592,7 @@ footer small{display:block;margin-top:30px;font-size:13px;line-height:1.6;opacit
       var b=document.createElement('span');b.className='pill';b.textContent=c.near?'Xưởng ở TP.HCM':'Mời từ xa';pl.appendChild(b);
       if(c.img){var im=document.createElement('img');im.className='th';im.src=c.img;im.alt='';el.appendChild(im)}
       if(fine){
-        el.addEventListener('pointermove',function(e){var r=el.getBoundingClientRect();el.style.setProperty('--ry',((e.clientX-r.left)/r.width-.5)*14+'deg');el.style.setProperty('--rx',(.5-(e.clientY-r.top)/r.height)*14+'deg')});
+        el.addEventListener('pointermove',function(e){if(reduce)return;var r=el.getBoundingClientRect();el.style.setProperty('--ry',((e.clientX-r.left)/r.width-.5)*14+'deg');el.style.setProperty('--rx',(.5-(e.clientY-r.top)/r.height)*14+'deg')});
         el.addEventListener('pointerleave',function(){el.style.setProperty('--rx','0deg');el.style.setProperty('--ry','0deg')});
       }
       grid.appendChild(el);
