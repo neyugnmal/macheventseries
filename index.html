@@ -501,7 +501,6 @@ html:not(.still) .motion-tg i{background:var(--son)}
   </div>
 </footer>
 
-<button class="motion-tg" type="button" id="motionTg" aria-pressed="false"><i></i><span>Bật hiệu ứng chuyển động</span></button>
 <a class="fab" href="#dang-ky" aria-label="Giữ chỗ làm thử">
   <svg viewBox="0 0 100 100" aria-hidden="true"><defs><path id="ring" d="M50 50 m-38 0 a38 38 0 1 1 76 0 a38 38 0 1 1 -76 0"/></defs><text><textPath href="#ring" textLength="234" lengthAdjust="spacing">GIỮ CHỖ · LÀM THỬ · GIỮ CHỖ · LÀM THỬ ·</textPath></text></svg>
   <span class="sw"></span>
@@ -514,7 +513,7 @@ html:not(.still) .motion-tg i{background:var(--son)}
   var reduce=pref==='off';
   document.documentElement.classList.toggle('still',reduce);
   var tg=document.getElementById('motionTg');
-  if(osReduce){tg.classList.add('show');
+  if(osReduce&&tg){tg.classList.add('show');
     function lab(){tg.setAttribute('aria-pressed',String(!reduce));tg.querySelector('span').textContent=reduce?'Bật hiệu ứng chuyển động':'Tắt hiệu ứng chuyển động'}
     lab();
     tg.addEventListener('click',function(){reduce=!reduce;document.documentElement.classList.toggle('still',reduce);
